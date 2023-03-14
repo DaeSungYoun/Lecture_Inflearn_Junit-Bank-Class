@@ -1,6 +1,7 @@
 package com.ydskingdom.bank.config;
 
 import com.ydskingdom.bank.domain.user.UserEnum;
+import com.ydskingdom.bank.util.CustomResponseUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,10 +42,7 @@ public class SecurityConfig {
         http.httpBasic().disable();
 
         //Exception 가로채기
-        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
-            response.setStatus(403);
-            response.getWriter().println("error");
-        });
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요"));
 
         http.authorizeRequests()
                 .antMatchers("/api/s/**").authenticated()
