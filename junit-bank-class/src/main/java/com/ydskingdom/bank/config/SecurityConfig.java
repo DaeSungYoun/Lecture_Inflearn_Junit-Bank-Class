@@ -40,6 +40,12 @@ public class SecurityConfig {
         // httpBasic()은 브라우저가 팝업창을 이용해서 사용자 인증을 진행한다.
         http.httpBasic().disable();
 
+        //Exception 가로채기
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> {
+            response.setStatus(403);
+            response.getWriter().println("error");
+        });
+
         http.authorizeRequests()
                 .antMatchers("/api/s/**").authenticated()
                 .antMatchers("/api/admin/**").hasRole("" + UserEnum.ADMIN)

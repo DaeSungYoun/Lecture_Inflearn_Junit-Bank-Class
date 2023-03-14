@@ -8,3 +8,7 @@
             }
         }
     ```
+
+- ExceptionTranslationFilter
+  - 인증, 권한 관련된 에러가 발생하면 ExceptionTranslationFilter가 가로챔
+  - 
