@@ -1,8 +1,11 @@
 package com.ydskingdom.bank.service;
 
+import com.ydskingdom.bank.config.dummy.DummyObject;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserEnum;
 import com.ydskingdom.bank.domain.user.UserRepository;
+import com.ydskingdom.bank.dto.user.UserReqDto;
+import com.ydskingdom.bank.dto.user.UserResDto;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -11,7 +14,6 @@ import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.time.LocalDateTime;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -19,7 +21,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class UserServiceTest {
+class UserServiceTest extends DummyObject {
 
     @InjectMocks
     private UserService userService;
@@ -33,7 +35,7 @@ class UserServiceTest {
     @Test
     void 회원가입_test() {
         //given
-        UserService.JoinReqDto joinReqDto = new UserService.JoinReqDto();
+        UserReqDto.JoinReqDto joinReqDto = new UserReqDto.JoinReqDto();
         joinReqDto.setUsername("ssar");
         joinReqDto.setPassword("1234");
         joinReqDto.setEmail("ssar@nate.com");
@@ -43,21 +45,13 @@ class UserServiceTest {
         //stub 1
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
 //        when(userRepository.findByUsername(any())).thenReturn(Optional.of(new User()));
+
         //stub 2
-        User ssar = User.builder()
-                .id(1L)
-                .username("ssar")
-                .password("1234")
-                .email("ssar@nate.com")
-                .fullname("쌀")
-                .role(UserEnum.CUSTOMER)
-                .createdAt(LocalDateTime.now())
-                .updatedAt(LocalDateTime.now())
-                .build();
+        User ssar = newMockUser(1L, "ssar", "쌀");
         when(userRepository.save(any())).thenReturn(ssar);
 
         //when
-        UserService.JoinResDto joinResDto = userService.회원가입(joinReqDto);
+        UserResDto.JoinResDto joinResDto = userService.회원가입(joinReqDto);
         System.out.println(joinResDto);
 
         //then
