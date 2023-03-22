@@ -7,6 +7,7 @@ import com.ydskingdom.bank.handler.exception.CustomApiException;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
+import lombok.ToString;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -54,6 +55,7 @@ public class UserService {
         }
     }
 
+    @ToString
     @Getter
     @Setter
     public static class JoinResDto{
