@@ -2,7 +2,6 @@ package com.ydskingdom.bank.service;
 
 import com.ydskingdom.bank.config.dummy.DummyObject;
 import com.ydskingdom.bank.domain.user.User;
-import com.ydskingdom.bank.domain.user.UserEnum;
 import com.ydskingdom.bank.domain.user.UserRepository;
 import com.ydskingdom.bank.dto.user.UserReqDto;
 import com.ydskingdom.bank.dto.user.UserResDto;
@@ -41,7 +40,7 @@ class UserServiceTest extends DummyObject {
         joinReqDto.setEmail("ssar@nate.com");
         joinReqDto.setFullname("쌀");
 
-        //가정법 같은?
+        //가정법 같은?, userRepository.findByUsername()에서 어떻게 실행될지를 미리 정해두는것
         //stub 1
         when(userRepository.findByUsername(any())).thenReturn(Optional.empty());
 //        when(userRepository.findByUsername(any())).thenReturn(Optional.of(new User()));
