@@ -2,6 +2,7 @@ package com.ydskingdom.bank.handler;
 
 import com.ydskingdom.bank.dto.ResponseDto;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
+import com.ydskingdom.bank.handler.exception.CustomValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
@@ -17,5 +18,11 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> apiException(CustomApiException e) {
         log.error(e.getMessage());
         return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), null), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomValidationException.class)
+    public ResponseEntity<?> customValidationException(CustomValidationException e) {
+        log.error(e.getMessage());
+        return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), e.getErrorMap()), HttpStatus.BAD_REQUEST);
     }
 }
