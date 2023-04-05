@@ -11,6 +11,14 @@ import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
 
 public class UserReqDto {
+
+    @Setter
+    @Getter
+    public static class LoginReqDto {
+        private String username;
+        private String password;
+    }
+
     @Getter
     @Setter
     public static class JoinReqDto{
