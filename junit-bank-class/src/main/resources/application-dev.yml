@@ -28,5 +28,5 @@ spring:
 
 logging:
   level:
-    '[com.ydskingdom.bank]': DEBUG
+    '[com.ydskingdom.bank]': info
     '[org.hibernate.type]': TRACE
