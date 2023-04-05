@@ -58,7 +58,7 @@ public class SecurityConfig {
         http.apply(new CustomSecurityFilterManager());
 
         //Exception 가로채기
-        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> CustomResponseUtil.unAuthentication(response, "로그인을 진행해 주세요"));
+        http.exceptionHandling().authenticationEntryPoint((request, response, authException) -> CustomResponseUtil.fail(response, "로그인을 진행해 주세요"));
 
         http.authorizeRequests()
                 .antMatchers("/api/s/**").authenticated()

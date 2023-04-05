@@ -14,8 +14,10 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 import javax.servlet.FilterChain;
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
 
 @Slf4j
 public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilter {
@@ -42,12 +44,20 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
 
             // UserDetailsService의 loadUserByUsername
             Authentication authenticate = authenticationManager.authenticate(usernamePasswordAuthenticationToken);
+            //정상적으로 authenticate가 return 되면 successfulAuthentication() 메서드가 호출됨
             return authenticate;
         } catch (Exception e) {
             log.info("dsTest JwtAuthenticationFilter catch start");
-            //InternalAuthenticationServiceException이 터져야 SecurityConfig에 설정한 http.exceptionHandling().authenticationEntryPoint에 걸림
+            //InternalAuthenticationServiceException이 터져야 unsuccessfulAuthentication() 메서드가 호출 됨
             throw new InternalAuthenticationServiceException(e.getMessage());
         }
+    }
+
+    // 위에 있는 attemptAuthentication() 메서드에서 InternalAuthenticationServiceException이 터지게 되면  unsuccessfulAuthentication가 호출됨
+    @Override
+    protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
+        log.info("dsTest JwtAuthenticationFilter unsuccessfulAuthentication start");
+        CustomResponseUtil.fail(response, "로그인 실패");
     }
 
     // 위에 있는 attemptAuthentication() 메서드에서 정상적으로 return authenticate;되면 successfulAuthentication가 되면 호출됨

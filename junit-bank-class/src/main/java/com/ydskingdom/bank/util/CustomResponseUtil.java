@@ -24,7 +24,7 @@ public class CustomResponseUtil {
         }
     }
 
-    public static void unAuthentication(HttpServletResponse response, String msg) {
+    public static void fail(HttpServletResponse response, String msg) {
         try {
             ObjectMapper om = new ObjectMapper();
             ResponseDto<?> responseDto = new ResponseDto<>(-1, msg, null);
