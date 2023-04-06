@@ -24,13 +24,13 @@ public class CustomResponseUtil {
         }
     }
 
-    public static void fail(HttpServletResponse response, String msg) {
+    public static void fail(HttpServletResponse response, String msg, HttpStatus httpStatus) {
         try {
             ObjectMapper om = new ObjectMapper();
             ResponseDto<?> responseDto = new ResponseDto<>(-1, msg, null);
             String responseBody = om.writeValueAsString(responseDto);
             response.setContentType("application/json; charset=utf-8");
-            response.setStatus(HttpStatus.UNAUTHORIZED.value());
+            response.setStatus(httpStatus.value());
             response.getWriter().println(responseBody); // 예쁘게 메시지를 포장하는 공통적인 응답 DTO를 만들어보자!!
         } catch (Exception e) {
             log.error("서버 파싱 에러");

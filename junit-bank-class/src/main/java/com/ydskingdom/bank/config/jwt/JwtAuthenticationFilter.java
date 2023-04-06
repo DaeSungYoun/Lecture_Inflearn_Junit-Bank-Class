@@ -6,6 +6,7 @@ import com.ydskingdom.bank.dto.user.UserReqDto;
 import com.ydskingdom.bank.dto.user.UserResDto;
 import com.ydskingdom.bank.util.CustomResponseUtil;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
@@ -57,7 +58,7 @@ public class JwtAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     @Override
     protected void unsuccessfulAuthentication(HttpServletRequest request, HttpServletResponse response, AuthenticationException failed) throws IOException, ServletException {
         log.info("dsTest JwtAuthenticationFilter unsuccessfulAuthentication start");
-        CustomResponseUtil.fail(response, "로그인 실패");
+        CustomResponseUtil.fail(response, "로그인 실패", HttpStatus.UNAUTHORIZED);
     }
 
     // 위에 있는 attemptAuthentication() 메서드에서 정상적으로 return authenticate;되면 successfulAuthentication가 되면 호출됨

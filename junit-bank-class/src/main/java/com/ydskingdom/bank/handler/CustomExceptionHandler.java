@@ -2,6 +2,7 @@ package com.ydskingdom.bank.handler;
 
 import com.ydskingdom.bank.dto.ResponseDto;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
+import com.ydskingdom.bank.handler.exception.CustomForbiddenException;
 import com.ydskingdom.bank.handler.exception.CustomValidationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -18,6 +19,12 @@ public class CustomExceptionHandler {
     public ResponseEntity<?> apiException(CustomApiException e) {
         log.error(e.getMessage());
         return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), null), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(CustomForbiddenException.class)
+    public ResponseEntity<?> forbiddenException(CustomForbiddenException e) {
+        log.error(e.getMessage());
+        return new ResponseEntity<>(new ResponseDto<>(-1, e.getMessage(), null), HttpStatus.FORBIDDEN);
     }
 
     @ExceptionHandler(CustomValidationException.class)
