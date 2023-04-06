@@ -32,8 +32,13 @@ public class SecurityConfig {
     public class CustomSecurityFilterManager extends AbstractHttpConfigurer<CustomSecurityFilterManager, HttpSecurity> {
         @Override
         public void configure(HttpSecurity builder) throws Exception {
+            log.info("dsTest CustomSecurityFilterManager configure 필터 등록");
             AuthenticationManager authenticationManager = builder.getSharedObject(AuthenticationManager.class);
+
+            // /api/login 호출될 때 탐
             builder.addFilter(new JwtAuthenticationFilter(authenticationManager));
+
+            // 모든 주소에서 동작함
             builder.addFilter(new JwtAuthorizationFilter(authenticationManager));
             super.configure(builder);
         }
