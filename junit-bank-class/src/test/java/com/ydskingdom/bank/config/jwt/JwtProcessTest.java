@@ -3,7 +3,6 @@ package com.ydskingdom.bank.config.jwt;
 import com.ydskingdom.bank.config.auth.LoginUser;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserEnum;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -17,12 +16,11 @@ class JwtProcessTest {
         LoginUser loginUser = new LoginUser(user);
 
         // when
-        String jwtToken = JwtProcess.create(loginUser);
-        return jwtToken;
+        return JwtProcess.create(loginUser);
     }
 
     @Test
-    public void create_test() throws Exception {
+    public void create_test() {
         // given
 
         // when
@@ -34,7 +32,7 @@ class JwtProcessTest {
     }
 
     @Test
-    public void verify_test() throws Exception {
+    public void verify_test() {
         // given
         String token = createToken(); // Bearer 제거해서 처리하기
         String jwtToken = token.replace(JwtVO.TOKEN_PREFIX, "");
