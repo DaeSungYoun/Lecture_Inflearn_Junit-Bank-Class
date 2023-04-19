@@ -70,7 +70,7 @@ class UserControllerTest extends DummyObject {
         String requestBody = objectMapper.writeValueAsString(joinReqDto);
         System.out.println("테스트 requestBody = " + requestBody);
 
-        //when
+        //when기
         ResultActions resultActions = mvc.perform(post("/api/join").content(requestBody).contentType(MediaType.APPLICATION_JSON));
         String contentAsString = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 contentAsString = " + contentAsString);
