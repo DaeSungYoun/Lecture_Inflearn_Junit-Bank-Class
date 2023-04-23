@@ -4,7 +4,6 @@ import com.ydskingdom.bank.domain.account.Account;
 import lombok.Getter;
 import lombok.Setter;
 
-@Setter
 @Getter
 public class AccountResDto {
     private Long id;

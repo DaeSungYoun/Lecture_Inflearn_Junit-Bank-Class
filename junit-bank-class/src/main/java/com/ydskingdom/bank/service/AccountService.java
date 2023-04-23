@@ -28,7 +28,8 @@ public class AccountService {
 
         List<Account> accountListPS = accountRepository.findByUser_Id(userId);
 
-        return new AccountListResDto(userPS, accountListPS);
+        AccountListResDto accountListResDto = new AccountListResDto(userPS, accountListPS);
+        return accountListResDto;
     }
 
     @Transactional

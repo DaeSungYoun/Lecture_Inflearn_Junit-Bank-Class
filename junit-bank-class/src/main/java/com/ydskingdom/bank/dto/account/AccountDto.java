@@ -10,8 +10,8 @@ public class AccountDto {
     private Long balance;
 
     public AccountDto(Account account) {
-        this.id = id;
-        this.number = number;
-        this.balance = balance;
+        this.id = account.getId();
+        this.number = account.getNumber();
+        this.balance = account.getBalance();
     }
 }
