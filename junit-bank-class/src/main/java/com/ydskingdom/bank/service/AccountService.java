@@ -4,6 +4,7 @@ import com.ydskingdom.bank.domain.account.Account;
 import com.ydskingdom.bank.domain.account.AccountRepository;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserRepository;
+import com.ydskingdom.bank.dto.account.AccountListResDto;
 import com.ydskingdom.bank.dto.account.AccountReqDto;
 import com.ydskingdom.bank.dto.account.AccountResDto;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
@@ -11,6 +12,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @RequiredArgsConstructor
@@ -20,6 +22,14 @@ public class AccountService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+
+    public AccountListResDto accsountListByUserId(Long userId) {
+        User userPS = userRepository.findById(userId).orElseThrow(() -> new CustomApiException("유저를 찾을 수 없습니다."));
+
+        List<Account> accountListPS = accountRepository.findByUser_Id(userId);
+
+        return new AccountListResDto(userPS, accountListPS);
+    }
 
     @Transactional
     public AccountResDto accountSave(AccountReqDto accountReqDto, Long userId) {
