@@ -7,9 +7,11 @@ import com.ydskingdom.bank.domain.account.Account;
 import com.ydskingdom.bank.domain.account.AccountRepository;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserRepository;
+import com.ydskingdom.bank.dto.account.AccountListResDto;
 import com.ydskingdom.bank.dto.account.AccountReqDto;
 import com.ydskingdom.bank.dto.account.AccountResDto;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
+import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -17,6 +19,8 @@ import org.mockito.Mock;
 import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -106,6 +110,57 @@ class AccountServiceTest extends DummyObject {
 
         assertThatThrownBy(() -> accountService.accountSave(accountReqDto, userId)).isInstanceOf(CustomApiException.class)
                 .hasMessage("해당 계좌가 이미 존재합니다");
+    }
+
+    @Test
+    public void 계좌목록보기_유저별_test() {
+        // given
+        Long userId = 1L;
+
+        // stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        when(userRepository.findById(userId)).thenReturn(Optional.of(ssar));
+
+        Account ssarAccount1 = newMockAccount(1L, 1111L, 1000L, ssar);
+        Account ssarAccount2 = newMockAccount(2L, 2222L, 1000L, ssar);
+        List<Account> accountList = Arrays.asList(ssarAccount1, ssarAccount2);
+        when(accountRepository.findByUser_Id(any())).thenReturn(accountList);
+
+        // when
+        AccountListResDto accountListRespDto = accountService.accsountListByUserId(userId);
+
+        // then
+        Assertions.assertThat(accountListRespDto.getFullName()).isEqualTo("쌀");
+        Assertions.assertThat(accountListRespDto.getAccounts().size()).isEqualTo(2);
+    }
+
+    @Test
+    public void 계좌삭제_test1() {
+        // given
+        Long number = 1111L;
+        Long userId = 2L;
+
+        // when
+        assertThatThrownBy(() -> accountService.accountDelete(number, userId)).isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌를 찾을 수 없습니다");
+    }
+
+
+
+    @Test
+    public void 계좌삭제_test2()  {
+        // given
+        Long number = 1111L;
+        Long userId = 2L;
+
+        // stub
+        User ssar = newMockUser(1L, "ssar", "쌀");
+        Account ssarAccount = newMockAccount(1L, 1111L, 1000L, ssar);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(ssarAccount));
+
+        // when
+        assertThatThrownBy(() -> accountService.accountDelete(number, userId)).isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 소유자가 아닙니다");
     }
 
 }

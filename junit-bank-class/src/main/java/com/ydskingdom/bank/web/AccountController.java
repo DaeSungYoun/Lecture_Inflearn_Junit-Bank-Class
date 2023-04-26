@@ -37,4 +37,12 @@ public class AccountController {
 
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌등록 성공", accountResDto), HttpStatus.CREATED);
     }
+
+    @DeleteMapping("/s/account/{accountNumber}")
+    public ResponseEntity<?> deleteAccount(@PathVariable Long accountNumber, @AuthenticationPrincipal LoginUser loginUser) {
+
+        accountService.accountDelete(accountNumber, loginUser.getUser().getId());
+
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
+    }
 }

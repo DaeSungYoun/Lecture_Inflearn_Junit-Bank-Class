@@ -1,6 +1,7 @@
 package com.ydskingdom.bank.domain.account;
 
 import com.ydskingdom.bank.domain.user.User;
+import com.ydskingdom.bank.handler.exception.CustomApiException;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -50,5 +51,11 @@ public class Account {
         this.user = user;
         this.createdAt = createdAt;
         this.updatedAt = updatedAt;
+    }
+
+    public void checkOwner(Long userId) {
+        if (user.getId() != userId) {
+            throw new CustomApiException("계좌 소유자가 아닙니다");
+        }
     }
 }

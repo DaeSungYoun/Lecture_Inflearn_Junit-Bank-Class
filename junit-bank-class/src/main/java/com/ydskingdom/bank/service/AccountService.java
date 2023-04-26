@@ -46,4 +46,13 @@ public class AccountService {
 
         return new AccountResDto(accountPS);
     }
+
+    @Transactional
+    public void accountDelete(Long accountNumber, Long userId) {
+        Account accountPS = accountRepository.findByNumber(accountNumber).orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다"));
+
+        accountPS.checkOwner(userId);
+
+        accountRepository.deleteById(accountPS.getId());
+    }
 }

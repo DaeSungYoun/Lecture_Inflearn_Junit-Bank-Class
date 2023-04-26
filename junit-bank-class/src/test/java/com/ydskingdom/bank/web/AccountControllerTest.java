@@ -2,12 +2,10 @@ package com.ydskingdom.bank.web;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ydskingdom.bank.config.dummy.DummyObject;
-import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserRepository;
 import com.ydskingdom.bank.dto.account.AccountReqDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mock;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -19,7 +17,6 @@ import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -41,7 +38,7 @@ class AccountControllerTest extends DummyObject {
 
     @BeforeEach
     public void setUp() {
-        User ssar = userRepository.save(newUser("ssar", "쌀"));
+        userRepository.save(newUser("ssar", "쌀"));
     }
 
     // jwt token -> 인증필터 -> 시큐리티 세션생성
