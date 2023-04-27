@@ -62,4 +62,15 @@ public class Account {
     public void deposit(Long amount) {
         balance = balance + amount;
     }
+
+    public void checkSamePassword(Long password) {
+    }
+
+    public void checkBalance(Long amount) {
+
+    }
+
+    public void withdraw(Long amount) {
+
+    }
 }
