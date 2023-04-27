@@ -2,11 +2,12 @@ package com.ydskingdom.bank.service;
 
 import com.ydskingdom.bank.domain.account.Account;
 import com.ydskingdom.bank.domain.account.AccountRepository;
+import com.ydskingdom.bank.domain.transaction.Transaction;
+import com.ydskingdom.bank.domain.transaction.TransactionEnum;
+import com.ydskingdom.bank.domain.transaction.TransactionRepository;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserRepository;
-import com.ydskingdom.bank.dto.account.AccountListResDto;
-import com.ydskingdom.bank.dto.account.AccountReqDto;
-import com.ydskingdom.bank.dto.account.AccountResDto;
+import com.ydskingdom.bank.dto.account.*;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -22,6 +23,7 @@ public class AccountService {
 
     private final UserRepository userRepository;
     private final AccountRepository accountRepository;
+    private final TransactionRepository transactionRepository;
 
     public AccountListResDto accsountListByUserId(Long userId) {
         User userPS = userRepository.findById(userId).orElseThrow(() -> new CustomApiException("유저를 찾을 수 없습니다."));
@@ -54,5 +56,32 @@ public class AccountService {
         accountPS.checkOwner(userId);
 
         accountRepository.deleteById(accountPS.getId());
+    }
+
+    @Transactional
+    public AccountDepositResDto accountDeposit(AccountDepositReqDto accountDepositReqDto) {
+        if (accountDepositReqDto.getAmount() <= 0L) {
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다");
+        }
+
+        Account depositAccountPS = accountRepository.findByNumber(accountDepositReqDto.getNumber()).orElseThrow(() -> new CustomApiException("계좌를 찾을 수 없습니다"));
+
+        depositAccountPS.deposit(accountDepositReqDto.getAmount());
+
+        Transaction transaction = Transaction.builder()
+                .withdrawAccount(null)
+                .depositAccount(depositAccountPS)
+                .withdrawAccountBalance(null)
+                .depositAccountBalance(depositAccountPS.getBalance())
+                .amount(accountDepositReqDto.getAmount())
+                .gubun(TransactionEnum.DEPOSIT)
+                .sender("ATM")
+                .receiver(accountDepositReqDto.getNumber() + "")
+                .tel(accountDepositReqDto.getTel())
+                .build();
+
+        Transaction transactionPS = transactionRepository.save(transaction);
+
+        return new AccountDepositResDto(depositAccountPS, transactionPS);
     }
 }
