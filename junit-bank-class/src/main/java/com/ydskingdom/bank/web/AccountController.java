@@ -2,9 +2,7 @@ package com.ydskingdom.bank.web;
 
 import com.ydskingdom.bank.config.auth.LoginUser;
 import com.ydskingdom.bank.dto.ResponseDto;
-import com.ydskingdom.bank.dto.account.AccountListResDto;
-import com.ydskingdom.bank.dto.account.AccountReqDto;
-import com.ydskingdom.bank.dto.account.AccountResDto;
+import com.ydskingdom.bank.dto.account.*;
 import com.ydskingdom.bank.service.AccountService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -44,5 +42,12 @@ public class AccountController {
         accountService.accountDelete(accountNumber, loginUser.getUser().getId());
 
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 삭제 완료", null), HttpStatus.OK);
+    }
+
+    @PostMapping("/account/deposit")
+    public ResponseEntity<?> depositAccount(@RequestBody @Valid AccountDepositReqDto accountDepositReqDto,
+                                            BindingResult bindingResult) {
+        AccountDepositResDto accountDepositResDto = accountService.accountDeposit(accountDepositReqDto);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌 입금 완료", accountDepositResDto), HttpStatus.CREATED);
     }
 }
