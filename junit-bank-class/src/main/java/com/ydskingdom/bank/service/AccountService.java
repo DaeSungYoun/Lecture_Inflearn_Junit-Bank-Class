@@ -125,7 +125,7 @@ public class AccountService {
     }
 
     @Transactional
-    public AccountTransferRespDto 계좌이체(AccountTransferReqDto accountTransferReqDto, Long userId) {
+    public AccountTransferRespDto accountTransfer(AccountTransferReqDto accountTransferReqDto, Long userId) {
 
         // 출금계좌와 입금계좌가 동일하면 안됨
         if (accountTransferReqDto.getWithdrawNumber().longValue() == accountTransferReqDto.getDepositNumber()

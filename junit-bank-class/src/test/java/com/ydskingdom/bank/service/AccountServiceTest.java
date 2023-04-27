@@ -198,7 +198,7 @@ class AccountServiceTest extends DummyObject {
         assertThat(accountDepositResDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
     }
 
-    @DisplayName("계좌출금_0원 이하의 금액을 출금할 수 없습니다")
+    @DisplayName("계좌출금_실패 : 0원 이하의 금액을 출금할 수 없습니다")
     @Test
     void 계좌출금_실패_test1() {
         //given
@@ -215,7 +215,7 @@ class AccountServiceTest extends DummyObject {
                 .hasMessage("0원 이하의 금액을 출금할 수 없습니다");
     }
 
-    @DisplayName("계좌출금_계좌를 찾을 수 없습니다")
+    @DisplayName("계좌출금_실패 : 계좌를 찾을 수 없습니다")
     @Test
     void 계좌출금_실패_test2() {
         //given
@@ -232,7 +232,7 @@ class AccountServiceTest extends DummyObject {
                 .hasMessage("계좌를 찾을 수 없습니다");
     }
 
-    @DisplayName("계좌출금_계좌 소유자가 아닙니다")
+    @DisplayName("계좌출금_실패 : 계좌 소유자가 아닙니다")
     @Test
     void 계좌출금_실패_test3() {
         //given
@@ -253,7 +253,7 @@ class AccountServiceTest extends DummyObject {
                 .hasMessage("계좌 소유자가 아닙니다");
     }
 
-    @DisplayName("계좌출금_계좌 비밀번호 검증에 실패했습니다")
+    @DisplayName("계좌출금_실패 : 계좌 비밀번호 검증에 실패했습니다")
     @Test
     void 계좌출금_실패_test4() {
         //given
@@ -274,7 +274,7 @@ class AccountServiceTest extends DummyObject {
                 .hasMessage("계좌 비밀번호 검증에 실패했습니다");
     }
 
-    @DisplayName("계좌출금_계좌 잔액이 부족합니다")
+    @DisplayName("계좌출금_실패 : 계좌 잔액이 부족합니다")
     @Test
     void 계좌출금_실패_test5() {
         //given
@@ -327,5 +327,195 @@ class AccountServiceTest extends DummyObject {
         String responseBody = objectMapper.writeValueAsString(accountWithdrawResDto);
         System.out.println("responseBody = " + responseBody);
         assertThat(accountWithdrawResDto.getBalance()).isEqualTo(900L);
+    }
+
+    @DisplayName("계좌이체_실패 : 입출금계좌가 동일할 수 없습니다")
+    @Test
+    void 계좌이체_실패_test1() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 1111L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 100L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("입출금계좌가 동일할 수 없습니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 0원 이하의 금액을 입금할 수 없습니다")
+    @Test
+    void 계좌이체_실패_test2() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 0L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("0원 이하의 금액을 입금할 수 없습니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 출금계좌를 찾을 수 없습니다")
+    @Test
+    void 계좌이체_실패_test3() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 11111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 100L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("출금계좌를 찾을 수 없습니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 입금계좌를 찾을 수 없습니다")
+    @Test
+    void 계좌이체_실패_test4() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 22222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 100L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account withdrawAccount = newMockAccount(1L, 1111L, 1000L, user);
+        when(accountRepository.findByNumber(withdrawAccountNumber)).thenReturn(Optional.of(withdrawAccount));
+
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("입금계좌를 찾을 수 없습니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 계좌 소유자가 아닙니다")
+    @Test
+    void 계좌이체_실패_test5() {
+        //given
+        Long loginUserId = 2L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 100L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account withdrawAccount = newMockAccount(1L, 1111L, 1000L, user);
+        when(accountRepository.findByNumber(withdrawAccountNumber)).thenReturn(Optional.of(withdrawAccount));
+
+        //stub
+        User user2 = newMockUser(2L, "cos", "코스");
+        Account depositAccount = newMockAccount(2L, 2222L, 1000L, user2);
+        when(accountRepository.findByNumber(depositAccountNumber)).thenReturn(Optional.of(depositAccount));
+
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 소유자가 아닙니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 계좌 비밀번호 검증에 실패했습니다")
+    @Test
+    void 계좌이체_실패_test6() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 11234L;
+        Long transferAmount = 100L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account withdrawAccount = newMockAccount(1L, 1111L, 1000L, user);
+        when(accountRepository.findByNumber(withdrawAccountNumber)).thenReturn(Optional.of(withdrawAccount));
+
+        //stub
+        User user2 = newMockUser(2L, "cos", "코스");
+        Account depositAccount = newMockAccount(2L, 2222L, 1000L, user2);
+        when(accountRepository.findByNumber(depositAccountNumber)).thenReturn(Optional.of(depositAccount));
+
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 비밀번호 검증에 실패했습니다");
+    }
+
+    @DisplayName("계좌이체_실패 : 계좌 잔액이 부족합니다")
+    @Test
+    void 계좌이체_실패_test7() {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 200L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account withdrawAccount = newMockAccount(1L, 1111L, 100L, user);
+        when(accountRepository.findByNumber(withdrawAccountNumber)).thenReturn(Optional.of(withdrawAccount));
+
+        //stub
+        User user2 = newMockUser(2L, "cos", "코스");
+        Account depositAccount = newMockAccount(2L, 2222L, 1000L, user2);
+        when(accountRepository.findByNumber(depositAccountNumber)).thenReturn(Optional.of(depositAccount));
+
+        assertThatThrownBy(() -> accountService.accountTransfer(accountTransferReqDto, loginUserId))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 잔액이 부족합니다");
+    }
+
+    @DisplayName("계좌이체_성공")
+    @Test
+    void 계좌이체_성공_test() throws JsonProcessingException {
+        //given
+        Long loginUserId = 1L;
+        Long withdrawAccountNumber = 1111L;
+        Long depositAccountNumber = 2222L;
+        Long withdrawAccountpassword = 1234L;
+        Long transferAmount = 200L;
+        AccountTransferReqDto accountTransferReqDto = newMockAccountTransferReqDto(withdrawAccountNumber, depositAccountNumber, withdrawAccountpassword, transferAmount);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account withdrawAccount = newMockAccount(1L, 1111L, 1000L, user);
+        when(accountRepository.findByNumber(withdrawAccountNumber)).thenReturn(Optional.of(withdrawAccount));
+
+        //stub
+        User user2 = newMockUser(2L, "cos", "코스");
+        Account depositAccount = newMockAccount(2L, 2222L, 1000L, user2);
+        when(accountRepository.findByNumber(depositAccountNumber)).thenReturn(Optional.of(depositAccount));
+
+        //stub
+        Transaction transaction = newMockTransferTransaction(1L, accountTransferReqDto.getAmount(), withdrawAccount, depositAccount);
+        when(transactionRepository.save(any())).thenReturn(transaction);
+
+        AccountTransferRespDto accountTransferRespDto = accountService.accountTransfer(accountTransferReqDto, loginUserId);
+
+        //then
+        String responseBody = objectMapper.writeValueAsString(accountTransferRespDto);
+        System.out.println("responseBody = " + responseBody);
+        assertThat(accountTransferRespDto.getBalance()).isEqualTo(800L);
     }
 }

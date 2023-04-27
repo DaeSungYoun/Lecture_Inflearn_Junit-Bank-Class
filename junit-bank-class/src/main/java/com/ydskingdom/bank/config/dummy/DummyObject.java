@@ -6,12 +6,42 @@ import com.ydskingdom.bank.domain.transaction.Transaction;
 import com.ydskingdom.bank.domain.transaction.TransactionEnum;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserEnum;
+import com.ydskingdom.bank.dto.account.AccountTransferReqDto;
 import com.ydskingdom.bank.dto.account.AccountWithdrawReqDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
 public class DummyObject {
+
+    protected Transaction newMockTransferTransaction(Long id, Long amount, Account withdrawAccount, Account depositAccount) {
+        return Transaction.builder()
+                .id(id)
+                .withdrawAccount(withdrawAccount)
+                .depositAccount(depositAccount)
+                .withdrawAccountBalance(withdrawAccount.getBalance())
+                .depositAccountBalance(depositAccount.getBalance())
+                .amount(amount)
+                .gubun(TransactionEnum.TRANSFER)
+                .sender(withdrawAccount.getNumber() + "")
+                .receiver(depositAccount.getNumber() + "")
+                .tel("01022227777")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+
+    }
+
+    protected AccountTransferReqDto newMockAccountTransferReqDto(Long withdrawNumber, Long depositNumber, Long withdrawPassword, Long transferAmount) {
+        AccountTransferReqDto accountTransferReqDto = new AccountTransferReqDto();
+        accountTransferReqDto.setWithdrawNumber(withdrawNumber);
+        accountTransferReqDto.setDepositNumber(depositNumber);
+        accountTransferReqDto.setWithdrawPassword(withdrawPassword);
+        accountTransferReqDto.setAmount(transferAmount);
+        accountTransferReqDto.setGubun("TRANSFER");
+
+        return accountTransferReqDto;
+    }
 
     protected AccountWithdrawReqDto newMockAccountWithdrawReqDto(Long withdrawAccountNumber, Long accountPassword, Long withdrawAmount) {
         AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
