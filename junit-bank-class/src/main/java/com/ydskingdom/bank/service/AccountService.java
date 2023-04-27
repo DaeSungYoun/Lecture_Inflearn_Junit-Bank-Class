@@ -123,4 +123,59 @@ public class AccountService {
         // DTO 응답
         return new AccountWithdrawResDto(withdrawAccountPS, transactionPS);
     }
+
+    @Transactional
+    public AccountTransferRespDto 계좌이체(AccountTransferReqDto accountTransferReqDto, Long userId) {
+
+        // 출금계좌와 입금계좌가 동일하면 안됨
+        if (accountTransferReqDto.getWithdrawNumber().longValue() == accountTransferReqDto.getDepositNumber()
+                .longValue()) {
+            throw new CustomApiException("입출금계좌가 동일할 수 없습니다");
+        }
+
+        // 0원 체크
+        if (accountTransferReqDto.getAmount() <= 0L) {
+            throw new CustomApiException("0원 이하의 금액을 입금할 수 없습니다");
+        }
+
+        // 출금계좌 확인
+        Account withdrawAccountPS = accountRepository.findByNumber(accountTransferReqDto.getWithdrawNumber())
+                .orElseThrow(
+                        () -> new CustomApiException("출금계좌를 찾을 수 없습니다"));
+
+        // 입금계좌 확인
+        Account depositAccountPS = accountRepository.findByNumber(accountTransferReqDto.getDepositNumber())
+                .orElseThrow(
+                        () -> new CustomApiException("입금계좌를 찾을 수 없습니다"));
+
+        // 출금 소유자 확인 (로그인한 사람과 동일한지)
+        withdrawAccountPS.checkOwner(userId);
+
+        // 출금계좌 비빌번호 확인
+        withdrawAccountPS.checkSamePassword(accountTransferReqDto.getWithdrawPassword());
+
+        // 출금계좌 잔액 확인
+        withdrawAccountPS.checkBalance(accountTransferReqDto.getAmount());
+
+        // 이체하기
+        withdrawAccountPS.withdraw(accountTransferReqDto.getAmount());
+        depositAccountPS.deposit(accountTransferReqDto.getAmount());
+
+        // 거래내역 남기기 (내 계좌에서 ATM으로 출금)
+        Transaction transaction = Transaction.builder()
+                .withdrawAccount(withdrawAccountPS)
+                .depositAccount(depositAccountPS)
+                .withdrawAccountBalance(withdrawAccountPS.getBalance())
+                .depositAccountBalance(depositAccountPS.getBalance())
+                .amount(accountTransferReqDto.getAmount())
+                .gubun(TransactionEnum.TRANSFER)
+                .sender(accountTransferReqDto.getWithdrawNumber() + "")
+                .receiver(accountTransferReqDto.getDepositNumber() + "")
+                .build();
+
+        Transaction transactionPS = transactionRepository.save(transaction);
+
+        // DTO응답
+        return new AccountTransferRespDto(withdrawAccountPS, transactionPS);
+    }
 }
