@@ -10,6 +10,7 @@ import com.ydskingdom.bank.domain.user.UserRepository;
 import com.ydskingdom.bank.dto.ResponseDto;
 import com.ydskingdom.bank.dto.account.AccountDepositReqDto;
 import com.ydskingdom.bank.dto.account.AccountReqDto;
+import com.ydskingdom.bank.dto.account.AccountWithdrawReqDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -164,6 +165,30 @@ class AccountControllerTest extends DummyObject {
         // when
         ResultActions resultActions = mockMvc
                 .perform(post("/api/account/deposit").content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // then
+        resultActions.andExpect(status().isCreated());
+    }
+
+    @DisplayName("계좌 출금 테스트")
+    @WithUserDetails(value = "ssar", setupBefore = TestExecutionEvent.TEST_EXECUTION)
+    @Test
+    public void withdrawAccount_test() throws Exception {
+        // given
+        Long withdrawAccountNumber = 1111L;
+        Long withdrawAccountpassword = 1234L;
+        Long withdrawAmount = 100L;
+        AccountWithdrawReqDto accountWithdrawReqDto = newMockAccountWithdrawReqDto(withdrawAccountNumber, withdrawAccountpassword, withdrawAmount);
+
+        String requestBody = objectMapper.writeValueAsString(accountWithdrawReqDto);
+        System.out.println("테스트 : " + requestBody);
+
+        // when
+        ResultActions resultActions = mockMvc
+                .perform(post("/api/s/account/withdraw").content(requestBody)
                         .contentType(MediaType.APPLICATION_JSON));
         String responseBody = resultActions.andReturn().getResponse().getContentAsString();
         System.out.println("테스트 : " + responseBody);
