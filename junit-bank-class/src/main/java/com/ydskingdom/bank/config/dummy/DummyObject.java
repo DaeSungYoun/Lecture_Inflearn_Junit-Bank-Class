@@ -6,11 +6,22 @@ import com.ydskingdom.bank.domain.transaction.Transaction;
 import com.ydskingdom.bank.domain.transaction.TransactionEnum;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserEnum;
+import com.ydskingdom.bank.dto.account.AccountWithdrawReqDto;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.time.LocalDateTime;
 
 public class DummyObject {
+
+    protected AccountWithdrawReqDto newMockAccountWithdrawReqDto(Long withdrawAccountNumber, Long accountPassword, Long withdrawAmount) {
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(withdrawAccountNumber);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(accountPassword);
+        accountWithdrawReqDto.setAmount(withdrawAmount);
+
+        return accountWithdrawReqDto;
+    }
 
     protected Transaction newMockWithdrawTransaction(Long id, Account account) {
         return Transaction.builder()
