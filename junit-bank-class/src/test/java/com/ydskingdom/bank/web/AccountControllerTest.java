@@ -1,5 +1,6 @@
 package com.ydskingdom.bank.web;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.ydskingdom.bank.config.dummy.DummyObject;
 import com.ydskingdom.bank.domain.account.Account;
@@ -7,6 +8,7 @@ import com.ydskingdom.bank.domain.account.AccountRepository;
 import com.ydskingdom.bank.domain.user.User;
 import com.ydskingdom.bank.domain.user.UserRepository;
 import com.ydskingdom.bank.dto.ResponseDto;
+import com.ydskingdom.bank.dto.account.AccountDepositReqDto;
 import com.ydskingdom.bank.dto.account.AccountReqDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -145,5 +147,28 @@ class AccountControllerTest extends DummyObject {
         System.out.println("테스트 : " + responseBody);
         ResponseDto responseDto = objectMapper.readValue(responseBody, ResponseDto.class);
         assertThat(responseDto.getMsg()).isEqualTo("계좌 소유자가 아닙니다");
+    }
+
+    @Test
+    public void depositAccount_test() throws Exception {
+        // given
+        AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
+        accountDepositReqDto.setNumber(1111L);
+        accountDepositReqDto.setAmount(100L);
+        accountDepositReqDto.setGubun("DEPOSIT");
+        accountDepositReqDto.setTel("01088887777");
+
+        String requestBody = objectMapper.writeValueAsString(accountDepositReqDto);
+        System.out.println("테스트 : " + requestBody);
+
+        // when
+        ResultActions resultActions = mockMvc
+                .perform(post("/api/account/deposit").content(requestBody)
+                        .contentType(MediaType.APPLICATION_JSON));
+        String responseBody = resultActions.andReturn().getResponse().getContentAsString();
+        System.out.println("테스트 : " + responseBody);
+
+        // then
+        resultActions.andExpect(status().isCreated());
     }
 }
