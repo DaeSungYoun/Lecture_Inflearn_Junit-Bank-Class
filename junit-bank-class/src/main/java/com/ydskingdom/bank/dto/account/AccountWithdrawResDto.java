@@ -2,7 +2,11 @@ package com.ydskingdom.bank.dto.account;
 
 import com.ydskingdom.bank.domain.account.Account;
 import com.ydskingdom.bank.domain.transaction.Transaction;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 public class AccountWithdrawResDto {
     private Long id; // 계좌 ID
     private Long number; // 계좌번호

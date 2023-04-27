@@ -12,6 +12,7 @@ import com.ydskingdom.bank.domain.user.UserRepository;
 import com.ydskingdom.bank.dto.account.*;
 import com.ydskingdom.bank.handler.exception.CustomApiException;
 import org.assertj.core.api.Assertions;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -116,7 +117,7 @@ class AccountServiceTest extends DummyObject {
     }
 
     @Test
-    public void 계좌목록보기_유저별_test() {
+    void 계좌목록보기_유저별_test() {
         // given
         Long userId = 1L;
 
@@ -138,7 +139,7 @@ class AccountServiceTest extends DummyObject {
     }
 
     @Test
-    public void 계좌삭제_test1() {
+    void 계좌삭제_test1() {
         // given
         Long number = 1111L;
         Long userId = 2L;
@@ -148,10 +149,8 @@ class AccountServiceTest extends DummyObject {
                 .hasMessage("계좌를 찾을 수 없습니다");
     }
 
-
-
     @Test
-    public void 계좌삭제_test2()  {
+    void 계좌삭제_test2()  {
         // given
         Long number = 1111L;
         Long userId = 2L;
@@ -169,7 +168,7 @@ class AccountServiceTest extends DummyObject {
     // Account -> balance 변경됐는지
     // Trasction -> balance 잘 기록됐는지
     @Test
-    public void 계좌입금_test() throws Exception {
+    void 계좌입금_test() {
         // given
         AccountDepositReqDto accountDepositReqDto = new AccountDepositReqDto();
         accountDepositReqDto.setNumber(1111L);
@@ -195,7 +194,143 @@ class AccountServiceTest extends DummyObject {
         System.out.println("테스트 : 계좌쪽 잔액 : " + ssarAccount2.getBalance());
 
         // then
-        Assertions.assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
-        Assertions.assertThat(accountDepositResDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
+        assertThat(ssarAccount1.getBalance()).isEqualTo(1100L);
+        assertThat(accountDepositResDto.getTransaction().getDepositAccountBalance()).isEqualTo(1100L);
+    }
+
+    @DisplayName("계좌출금_0원 이하의 금액을 출금할 수 없습니다")
+    @Test
+    void 계좌출금_실패_test1() {
+        //given
+        Long amount = 0L;
+
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1234L);
+        accountWithdrawReqDto.setAmount(amount);
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.accountWithdraw(accountWithdrawReqDto, 1L))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("0원 이하의 금액을 출금할 수 없습니다");
+    }
+
+    @DisplayName("계좌출금_계좌를 찾을 수 없습니다")
+    @Test
+    void 계좌출금_실패_test2() {
+        //given
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1234L);
+        accountWithdrawReqDto.setAmount(100L);
+
+        //when
+        //then
+        assertThatThrownBy(() -> accountService.accountWithdraw(accountWithdrawReqDto, 1L))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌를 찾을 수 없습니다");
+    }
+
+    @DisplayName("계좌출금_계좌 소유자가 아닙니다")
+    @Test
+    void 계좌출금_실패_test3() {
+        //given
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1234L);
+        accountWithdrawReqDto.setAmount(100L);
+
+        //when
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account account = newMockAccount(1L, 1111L, 1000L, user);
+
+        //stub
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+
+        assertThatThrownBy(() -> accountService.accountWithdraw(accountWithdrawReqDto, 2L))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 소유자가 아닙니다");
+    }
+
+    @DisplayName("계좌출금_계좌 비밀번호 검증에 실패했습니다")
+    @Test
+    void 계좌출금_실패_test4() {
+        //given
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1111L);
+        accountWithdrawReqDto.setAmount(100L);
+
+        //when
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account account = newMockAccount(1L, 1111L, 1000L, user);
+
+        //stub
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+
+        assertThatThrownBy(() -> accountService.accountWithdraw(accountWithdrawReqDto, 1L))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 비밀번호 검증에 실패했습니다");
+    }
+
+    @DisplayName("계좌출금_계좌 잔액이 부족합니다")
+    @Test
+    void 계좌출금_실패_test5() {
+        //given
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1234L);
+        accountWithdrawReqDto.setAmount(1100L);
+
+        //when
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account account = newMockAccount(1L, 1111L, 1000L, user);
+
+        //stub
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+
+        assertThatThrownBy(() -> accountService.accountWithdraw(accountWithdrawReqDto, 1L))
+                .isExactlyInstanceOf(CustomApiException.class)
+                .hasMessage("계좌 잔액이 부족합니다");
+    }
+
+    @DisplayName("계좌출금_성공")
+    @Test
+    void 계좌출금_성공_test5() throws JsonProcessingException {
+        /*
+        1111 계좌에는 1000원이 들어있음
+        1111 계좌번호에서 100원 출금
+        1111 계좌는 900원이 남아야함
+         */
+        //given
+        AccountWithdrawReqDto accountWithdrawReqDto = new AccountWithdrawReqDto();
+        accountWithdrawReqDto.setNumber(1111L);
+        accountWithdrawReqDto.setGubun("WITHDRAW");
+        accountWithdrawReqDto.setPassword(1234L);
+        accountWithdrawReqDto.setAmount(100L);
+
+        //when
+        //stub
+        User user = newMockUser(1L, "ssar", "쌀");
+        Account account = newMockAccount(1L, 1111L, 1000L, user);
+        when(accountRepository.findByNumber(any())).thenReturn(Optional.of(account));
+
+        //stub
+        Account account2 = newMockAccount(1L, 1111L, 1000L, user);
+        Transaction transaction = newMockWithdrawTransaction(1L, account2);
+        when(transactionRepository.save(any())).thenReturn(transaction);
+
+        AccountWithdrawResDto accountWithdrawResDto = accountService.accountWithdraw(accountWithdrawReqDto, 1L);
+
+        //then
+        String responseBody = objectMapper.writeValueAsString(accountWithdrawResDto);
+        System.out.println("responseBody = " + responseBody);
+        assertThat(accountWithdrawResDto.getBalance()).isEqualTo(900L);
     }
 }

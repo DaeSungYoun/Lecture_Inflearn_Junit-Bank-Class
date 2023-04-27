@@ -12,13 +12,31 @@ import java.time.LocalDateTime;
 
 public class DummyObject {
 
+    protected Transaction newMockWithdrawTransaction(Long id, Account account) {
+        return Transaction.builder()
+                .id(id)
+                .withdrawAccount(account)
+                .depositAccount(null)
+                .withdrawAccountBalance(account.getBalance())
+                .depositAccountBalance(null)
+                .amount(100L)
+                .gubun(TransactionEnum.WITHDRAW)
+                .sender(account.getNumber() + "")
+                .receiver("ATM")
+                .tel("01022227777")
+                .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
+                .build();
+    }
+
     protected Transaction newDepositTransaction(Account account, AccountRepository accountRepository) {
         account.deposit(100L); // 1000원이 있었다면 900원이 됨
         // 더티체킹이 안되기 때문에
         if (accountRepository != null) {
             accountRepository.save(account);
         }
-        Transaction transaction = Transaction.builder()
+
+        return Transaction.builder()
                 .withdrawAccount(null)
                 .depositAccount(account)
                 .withdrawAccountBalance(null)
@@ -29,14 +47,14 @@ public class DummyObject {
                 .receiver(account.getNumber() + "")
                 .tel("01022227777")
                 .build();
-        return transaction;
     }
 
     // 계좌 1111L 1000원
     // 입금 트랜잭션 -> 계좌 1100원 변경 -> 입금 트랙잭션 히스토리가 생성되어야 함.
     protected static Transaction newMockDepositTransaction(Long id, Account account) {
         account.deposit(100L);
-        Transaction transaction = Transaction.builder()
+
+        return Transaction.builder()
                 .id(id)
                 .withdrawAccount(null)
                 .depositAccount(account)
@@ -50,7 +68,6 @@ public class DummyObject {
                 .createdAt(LocalDateTime.now())
                 .updatedAt(LocalDateTime.now())
                 .build();
-        return transaction;
     }
 
     protected User newUser(String username, String fullname) {

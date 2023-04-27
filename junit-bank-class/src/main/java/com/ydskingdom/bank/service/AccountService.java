@@ -30,8 +30,7 @@ public class AccountService {
 
         List<Account> accountListPS = accountRepository.findByUser_Id(userId);
 
-        AccountListResDto accountListResDto = new AccountListResDto(userPS, accountListPS);
-        return accountListResDto;
+        return new AccountListResDto(userPS, accountListPS);
     }
 
     @Transactional
@@ -119,7 +118,9 @@ public class AccountService {
                 .receiver("ATM")
                 .build();
 
+        Transaction transactionPS = transactionRepository.save(transaction);
+
         // DTO 응답
-        return new AccountWithdrawResDto(withdrawAccountPS, transaction);
+        return new AccountWithdrawResDto(withdrawAccountPS, transactionPS);
     }
 }
