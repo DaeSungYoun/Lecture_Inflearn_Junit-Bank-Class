@@ -52,15 +52,23 @@ public class AccountController {
 
     @PostMapping("/s/account/withdraw")
     public ResponseEntity<?> withdrawAccount(@RequestBody @Valid AccountWithdrawReqDto accountWithdrawReqDto,
-                                            BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
+                                             BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
         AccountWithdrawResDto accountWithdrawResDto = accountService.accountWithdraw(accountWithdrawReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 출금 완료", accountWithdrawResDto), HttpStatus.CREATED);
     }
 
     @PostMapping("/s/account/transfer")
     public ResponseEntity<?> transferAccount(@RequestBody @Valid AccountTransferReqDto accountTransferReqDto,
-                                            BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
+                                             BindingResult bindingResult, @AuthenticationPrincipal LoginUser loginUser) {
         AccountTransferRespDto accountTransferRespDto = accountService.accountTransfer(accountTransferReqDto, loginUser.getUser().getId());
         return new ResponseEntity<>(new ResponseDto<>(1, "계좌 이체 완료", accountTransferRespDto), HttpStatus.CREATED);
+    }
+
+    @GetMapping("/s/account/{number}")
+    public ResponseEntity<?> findDetailAccount(@PathVariable Long number,
+                                               @RequestParam(value = "page", defaultValue = "0") Integer page,
+                                               @AuthenticationPrincipal LoginUser loginUser) {
+        AccountDetailResDto accountDetailRespDto = accountService.계좌상세보기(number, loginUser.getUser().getId(), page);
+        return new ResponseEntity<>(new ResponseDto<>(1, "계좌상세보기 성공", accountDetailRespDto), HttpStatus.OK);
     }
 }
